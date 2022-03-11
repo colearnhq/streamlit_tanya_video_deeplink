@@ -202,6 +202,7 @@ if input_csv != None:
 
             except Exception as e:
                 logger.error(f"Error Processing Files : {e}")
+                st.error(f'Error Processing File : {e}')
             
             val_log = tail.contents() # extracting the log 
 
