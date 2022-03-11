@@ -57,7 +57,27 @@ st.set_page_config(page_title="Tanya Deeplink", page_icon=None, layout="centered
 st.title("Video Deep Link Generator")
 # === PROCESSING SECTION ===
 st.header("File Processing")
-st.text('File must contain a column named \"Question ID\" or \"UUID\"')
+st.markdown('''
+File must contain these columns:
+* One of **Question ID** or **UUID**
+* Campaign
+* Channel
+* Feature
+* Subject
+* Grade (Stream)
+* Chapter
+* Difficulty level
+* Label 1
+* Label 2
+* Label 3
+* Skill
+* Skill ID
+
+Subjects should be:
+1. Maths
+2. Physics
+3. Chemistry
+''')
 input_csv = st.file_uploader("Choose File", type="csv", accept_multiple_files=False, key=None, help=None)
 
 if input_csv != None:
