@@ -1,7 +1,2 @@
 .streamlit
-secrets.toml
-
 test_files
-doubts.csv
-file_qid.csv
-file_uuid.csv
