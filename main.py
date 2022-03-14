@@ -35,7 +35,7 @@ class TailLogger(object):
 
 @st.cache
 def convert_df(df):
-    return df.to_csv().encode('utf-8')
+    return df.to_csv(index=False).encode('utf-8')
 
 client = boto3.client('s3',
                     aws_access_key_id = st.secrets["aws_access_key_id"],
@@ -118,11 +118,24 @@ if input_csv != None:
                 data.columns = ['Question ID', 'UUID']
 
                 if "Question ID" in video_file.columns:
-                    video_file = pd.merge(video_file, data, how='left', on='Question ID')
-                    st.text(f"Question ID Exist, copying UUID Done")
-                else:
-                    video_file = pd.merge(video_file, data, how='left', on='UUID')
-                    st.text(f"UUID Exist, copying Question ID Done")
+                    qid_df = video_file[~video_file['Question ID'].isna()].copy()
+                    try: 
+                        qid_df = qid_df.drop(columns=['UUID'])
+                    except:
+                        print("Only-Contain Question ID")
+                        uuid_df = pd.DataFrame()
+                    qid_df = pd.merge(qid_df, data, how='left', on='Question ID')
+
+                if "UUID" in video_file.columns:
+                    uuid_df = video_file[~video_file['UUID'].isna()].copy()
+                    try:
+                        uuid_df = uuid_df.drop(columns=['Question ID'])
+                    except:
+                        print("Only-Contain UUID")
+                        qid_df = pd.DataFrame()
+                    uuid_df = pd.merge(uuid_df, data, how='left', on='UUID')
+
+                video_file = pd.concat([qid_df, uuid_df]).reset_index(drop=True)
 
                 status = []
                 deep_link_url = []
