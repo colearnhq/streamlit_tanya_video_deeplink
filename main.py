@@ -335,9 +335,9 @@ filter = [[] for i in range(5)]
 for i in range(5):
     if (i == 0) or (filter[i-1] != []):
         with col1:
-            label[i] = st.selectbox('', filtered_csv.columns, index=len(filtered_csv.columns)-1, key=f'label{i}', help=None, on_change=None, args=None, kwargs=None, disabled=False)
+            label[i] = st.selectbox('', filtered_csv.columns, index=len(filtered_csv.columns)-1, key=f'label{i}')
         with col2:
-            filter[i] = st.multiselect('', options= filtered_csv[label[i]].unique(), default=None, key=f'filter{i}', help=None, on_change=None, args=None, kwargs=None, disabled=False)
+            filter[i] = st.multiselect('', options= filtered_csv[label[i]].unique(), default=None, key=f'filter{i}')
             if filter[i] != []:
                 filtered_csv = filtered_csv[filtered_csv[label[i]].isin(filter[i])]
 
