@@ -134,7 +134,7 @@ st.sidebar.markdown('''
     * Skill
     * Skill ID
 
-    Subjects should be:
+    Subjects should be:\n
     1. Maths\n
     2. Physics\n
     3. Chemistry\n
