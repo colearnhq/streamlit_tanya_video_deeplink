@@ -324,22 +324,27 @@ if quu_id != "":
 # === QUESTION ID FILTERING ===
 st.header("")
 st.header("")
-st.header("Question ID Filtering [WIP]")
+st.header("Question ID Filtering")
 st.markdown('Download list of Question IDs based on the filter applied. Please choose columns on the left selector and choose the filter on the right multi-selector')
 filtered_csv = doubts_csv.copy()
 filtered_csv['Select'] = 0
 
 col1, col2 = st.columns([1, 3])
-label = [[] for i in range(5)]
-filter = [[] for i in range(5)]
-for i in range(5):
+max_filter = 10
+label = [[] for i in range(max_filter)]
+filter = [[] for i in range(max_filter)]
+blocked_label = ['questionId', 'question_uuid', 'createdAt', 'imageUrl']
+
+for i in range(max_filter):
     if (i == 0) or (filter[i-1] != []):
         with col1:
-            label[i] = st.selectbox('', filtered_csv.columns, index=len(filtered_csv.columns)-1, key=f'label{i}')
+            label_column = filtered_csv.columns[~filtered_csv.columns.isin(blocked_label)]
+            label[i] = st.selectbox('', label_column, index=len(label_column)-1, key=f'label{i}')
         with col2:
             filter[i] = st.multiselect('', options= filtered_csv[label[i]].unique(), default=None, key=f'filter{i}')
             if filter[i] != []:
                 filtered_csv = filtered_csv[filtered_csv[label[i]].isin(filter[i])]
+                blocked_label.append(label[i])
 
 st.download_button(
             label="Download Filtered Question ID",
