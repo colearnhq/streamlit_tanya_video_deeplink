@@ -82,6 +82,7 @@ def download_doubt(a):
     for i in cleaning_tags:
         df = column_cleaning(df, i)
     df.grade = df.grade.astype(str)
+    df.video_duration = df.video_duration.astype(float)
     return df
 
 # function for detecting which column is missing and fill it with the necessary data
@@ -289,11 +290,12 @@ mapping_csv = st.file_uploader("Choose File", type="csv", key='mapping', accept_
 
 if mapping_csv != None:
     mapping_file = pd.read_csv(mapping_csv)
-    mapping_result = convert_df(id_mapping(mapping_file, doubts_csv)) # mapping process
-
+    mapping_result = id_mapping(mapping_file, doubts_csv) # mapping process
+    mapping_result = pd.merge(mapping_result, doubts_csv, how='left', left_on=['Question ID', 'UUID'], right_on=['questionId', 'question_uuid'])
+    mapping_result.drop(columns=['questionId', 'question_uuid', 'chapter', 'subject'], inplace=True)
     st.download_button(
         label="Download Mapping Result",
-        data=mapping_result,
+        data=convert_df(mapping_result),
         file_name='mapping_result'+'.csv',
         mime='text/csv',
     )
@@ -304,6 +306,7 @@ st.header("")
 st.header("Question Checking")
 st.markdown('Input Question ID or UUID to download the detail about that question in a CSV file.')
 quu_id = st.text_input("Input the Question ID or UUID")
+
 if quu_id != "":
     question_detail = pd.DataFrame()
     if doubts_csv['questionId'].str.contains(quu_id).any(): # checking if the input is question id
@@ -314,12 +317,7 @@ if quu_id != "":
         st.error('Question ID or UUID not Found')
 
     if len(question_detail) > 0:
-        st.download_button(
-            label="Download Question Detail",
-            data=convert_df(question_detail),
-            file_name=str(quu_id)+'.csv',
-            mime='text/csv',
-        )
+        st.dataframe(question_detail, width=1000)
 
 # === QUESTION ID FILTERING ===
 st.header("")
@@ -341,10 +339,21 @@ for i in range(max_filter):
             label_column = filtered_csv.columns[~filtered_csv.columns.isin(blocked_label)]
             label[i] = st.selectbox('', label_column, index=len(label_column)-1, key=f'label{i}')
         with col2:
-            filter[i] = st.multiselect('', options= filtered_csv[label[i]].unique(), default=None, key=f'filter{i}')
-            if filter[i] != []:
-                filtered_csv = filtered_csv[filtered_csv[label[i]].isin(filter[i])]
-                blocked_label.append(label[i])
+            if label[i] == 'video_duration':
+                max_time = max(filtered_csv['video_duration'])
+                min_time = min(filtered_csv['video_duration'])
+                filter[i] = st.slider('', max_time, min_time, (min_time, max_time))
+
+                if filter[i] != []:
+                    filtered_csv = filtered_csv[(filtered_csv[label[i]] >= filter[i][0]) & (filtered_csv[label[i]] <= filter[i][1])]
+                    blocked_label.append(label[i])
+
+            else:
+                filter[i] = st.multiselect('', options= filtered_csv[label[i]].unique(), default=None, key=f'filter{i}')
+            
+                if filter[i] != []:
+                    filtered_csv = filtered_csv[filtered_csv[label[i]].isin(filter[i])]
+                    blocked_label.append(label[i])
 
 st.download_button(
             label="Download Filtered Question ID",
