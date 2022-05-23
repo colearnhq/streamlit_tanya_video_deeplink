@@ -13,8 +13,7 @@ import ast
 bucket = st.secrets["bucket"]
 prefix = st.secrets["prefix"]
 
-tag_list = ['Question ID', 'Grade (Stream)', 'Chapter', 'Difficulty level', 
-        'Label 1', 'Label 2', 'Label 3', 'Skill', 'Skill ID']
+tag_list = ['Grade (Stream)', 'Chapter', 'Difficulty level', 'Label 1', 'Label 2', 'Label 3', 'Skill', 'Skill ID']
 
 headers = {
   'Authorization': st.secrets["Authorization"],
@@ -134,6 +133,7 @@ st.sidebar.markdown('''
     * Label 3
     * Skill
     * Skill ID
+    * Tags (Grade (Stream) - Skill ID)
 
     Subjects should be:\n
     1. Maths\n
@@ -191,6 +191,8 @@ if input_csv != None:
                     tags = video_file.iloc[i][tag_list].values
                     tags = tags[~pd.isnull(tags)]
                     tags = [str(i) for i in list(tags)]
+                    tags[0] = 'Grade ' + tags[0]
+                    print(tags)
 
                     data = {
                         "campaign": campaign,
